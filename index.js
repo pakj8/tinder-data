@@ -51,7 +51,7 @@ async function processAccount(account) {
         })
     }
 
-    const logger = new ProgressBar(`${girl.email}: [:bar] :current/:total (:percent)`, {
+    const logger = new ProgressBar(`${account.email}: [:bar] :current/:total (:percent)`, {
         complete: '=',
         incomplete: ' ',
         width: 20,
@@ -70,7 +70,7 @@ async function processAccount(account) {
                 break;
             }
 
-            Bluebird.each(results, async user => {
+            await Bluebird.each(results, async user => {
                 const delay = Math.floor(Math.random() * (LIKE_MAX_INTERVAL - LIKE_MIN_INTERVAL + 1)) + LIKE_MIN_INTERVAL;
                 await Bluebird.delay(delay);
                 await client.like({userId: user._id});

@@ -68,36 +68,35 @@ async function processAccount(account) {
         });
     }
 
-    const logger = new _progress2.default(`${girl.email}: [:bar] :current/:total (:percent)`, {
+    const logger = new _progress2.default(`${account.email}: [:bar] :current/:total (:percent)`, {
         complete: '=',
         incomplete: ' ',
         width: 20,
         total: LIKE_LIMIT
     });
 
-    let likes = 0;
-    while (likes <= LIKE_LIMIT) {
-        const { results } = await client.getRecommendations({
-            limit: LIKE_BATCH
-        });
+    if (!_commander2.default.history) {
+        let likes = 0;
+        while (likes <= LIKE_LIMIT) {
+            const { results } = await client.getRecommendations({
+                limit: LIKE_BATCH
+            });
 
-        if (results.length === 0) {
-            throw new Error('Received 0-length results');
-            break;
+            if (results.length === 0) {
+                throw new Error('Received 0-length results');
+                break;
+            }
+
+            await _bluebird2.default.each(results, async user => {
+                const delay = Math.floor(Math.random() * (LIKE_MAX_INTERVAL - LIKE_MIN_INTERVAL + 1)) + LIKE_MIN_INTERVAL;
+                await _bluebird2.default.delay(delay);
+                await client.like({ userId: user._id });
+                logger.tick();
+                likes += 1;
+            });
         }
-
-        _bluebird2.default.each(results, async user => {
-            const delay = Math.floor(Math.random() * (LIKE_MAX_INTERVAL - LIKE_MIN_INTERVAL + 1)) + LIKE_MIN_INTERVAL;
-            await _bluebird2.default.delay(delay);
-            await client.like({ userId: user._id });
-        });
-
-        logger.tick(results.length);
-        likes += results.length;
-    }
-    console.log('\n');
-
-    if (_commander2.default.history) {
+        console.log('\n');
+    } else {
         const history = await client.getHistory();
         return {
             history,
@@ -107,7 +106,7 @@ async function processAccount(account) {
 }
 
 async function main() {
-    _commander2.default.option('--update-position', 'Update position').option('--update-preferences', 'Update preferences').option('--history', 'Fetch history and write it to a JSON').parse(process.argv);
+    _commander2.default.option('--update-position', 'Update position').option('--update-preferences', 'Update preferences').option('--history', 'Just fetch history and write it to a JSON').parse(process.argv);
 
     const authFile = await _bluebird2.default.fromCallback(callback => _fs2.default.readFile('auth.json', callback));
     const auth = JSON.parse(authFile);
