@@ -1,0 +1,13 @@
+{
+  "name": "tinder-data",
+  "version": "0.0.1",
+  "description": "Automated Tinder script for gathering Tinder data for research",
+  "main": "bundle.js",
+  "repository": "https://github.com/wasd171/tinder-data.git",
+  "author": "Konstantin Nesterov <wasd171@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "rollup": "^0.41.6",
+    "tinder-modern": "^1.0.1"
+  }
+}
