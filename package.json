@@ -8,7 +8,9 @@
   "author": "Konstantin Nesterov <wasd171@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "nedb": "^1.8.0",
+    "bluebird": "^3.5.0",
+    "commander": "^2.9.0",
+    "progress": "^2.0.0",
     "tinder-modern": "^1.0.1"
   },
   "devDependencies": {
