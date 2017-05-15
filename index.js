@@ -8,13 +8,17 @@ import ProgressBar from 'progress'
 const GPS_COORDINATES = {
     lat: 47.3686498,
     lon: 8.5391825
-} // Berlin
+} // Zurich
 
 // Likes options
 const LIKE_MIN_INTERVAL = 2000;
 const LIKE_MAX_INTERVAL = 4000;
 const LIKE_BATCH = 10;
 const LIKE_LIMIT = 100;
+
+// Account switch intervals
+const SWITCH_MIN_INTERVAL = 15000;
+const SWITCH_MAX_INTERVAL = 30000;
 
 // Tinder preferences
 const DISCOVERY = true;
@@ -23,7 +27,16 @@ const MAX_AGE = 50;
 const GENDER = 0; // 0 = male, 1 = female, -1 = both
 const DISTANCE = 13; // distance in miles
 
-async function processAccount(account) {
+function generateDelay({min, max}) {
+    const delay = Math.floor(Math.random() * (max - min + 1)) + min;
+    return Bluebird.delay(delay);
+}
+
+async function processAccount(account, index) {
+    if (index !== 0) {
+        await generateDelay({min: SWITCH_MIN_INTERVAL, max: SWITCH_MAX_INTERVAL})
+    }
+
     const client = new TinderClient();
 
     await client.authorize({
@@ -72,8 +85,7 @@ async function processAccount(account) {
 
             await Bluebird.each(results, async user => {
                 if (likes < LIKE_LIMIT) {
-                    const delay = Math.floor(Math.random() * (LIKE_MAX_INTERVAL - LIKE_MIN_INTERVAL + 1)) + LIKE_MIN_INTERVAL;
-                    await Bluebird.delay(delay);
+                    await generateDelay({min: LIKE_MIN_INTERVAL, max: LIKE_MAX_INTERVAL});
                     await client.like({userId: user._id});
                     logger.tick();
                     likes += 1;
