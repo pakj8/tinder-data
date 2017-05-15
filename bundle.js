@@ -29,9 +29,9 @@ const GPS_COORDINATES = {
 
 // Likes options
 const LIKE_MIN_INTERVAL = 2000;
-const LIKE_MAX_INTERVAL = 10000;
+const LIKE_MAX_INTERVAL = 4000;
 const LIKE_BATCH = 10;
-const LIKE_LIMIT = 10;
+const LIKE_LIMIT = 100;
 
 // Tinder preferences
 const DISCOVERY = true;
@@ -77,7 +77,7 @@ async function processAccount(account) {
 
     if (!_commander2.default.history) {
         let likes = 0;
-        while (likes <= LIKE_LIMIT) {
+        while (likes < LIKE_LIMIT) {
             const { results } = await client.getRecommendations({
                 limit: LIKE_BATCH
             });
@@ -88,11 +88,13 @@ async function processAccount(account) {
             }
 
             await _bluebird2.default.each(results, async user => {
-                const delay = Math.floor(Math.random() * (LIKE_MAX_INTERVAL - LIKE_MIN_INTERVAL + 1)) + LIKE_MIN_INTERVAL;
-                await _bluebird2.default.delay(delay);
-                await client.like({ userId: user._id });
-                logger.tick();
-                likes += 1;
+                if (likes < LIKE_LIMIT) {
+                    const delay = Math.floor(Math.random() * (LIKE_MAX_INTERVAL - LIKE_MIN_INTERVAL + 1)) + LIKE_MIN_INTERVAL;
+                    await _bluebird2.default.delay(delay);
+                    await client.like({ userId: user._id });
+                    logger.tick();
+                    likes += 1;
+                }
             });
         }
         console.log('\n');
